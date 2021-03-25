@@ -81,8 +81,22 @@ ovpn_start(){
 ovpn_stop(){
 	local pid=$(cat $dir/.ovpn.pid)
 	kill -15 $pid
-	rm $dir/.ovpn.pid
-	echo -e "$ok Done."
+	count=0
+	until [ $count -gt 30 ];do
+		if [ "$(ps $pid | grep -v PID)" ];then
+			echo -n "."
+			sleep 1
+			((count++))
+		else
+			count=999
+		fi
+	done
+	if [ $count = 999 ];then
+		rm $dir/.ovpn.pid
+		echo -e "$ok Done."
+	else
+		echo -e "$warn OpenVPN daemon is still running !"
+	fi
 }
 
 #restart openvpn
