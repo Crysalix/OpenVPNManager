@@ -53,6 +53,8 @@ get_error(){
 			echo -e "What part of TWO ARGUMENTS don't you understand ? ($1)";;
 		183)                # Three args required
 			echo -e "This one need THREE ARGUMENTS ! ($1)";;
+		21)                 # 
+			echo -e "Error when moving new CRL file ! ($1)";;
 		42)                 # Can't be raised !
 			echo -e "How the fuck this is happening... ($1)";;
 		*)                  # non-handled error (atm)
@@ -135,6 +137,23 @@ ersa_create(){
 	esac
 }
 
+ersa_revoke(){
+if [ $2 ];then
+	cd $ersadir
+	./easyrsa revoke $2
+	ersa_crlrenew
+else
+	return 181
+fi
+}
+
+ersa_crlrenew(){
+	cd $ersadir
+	./easyrsa gen-crl || get_error $?
+	mv $ersadir/pki/crl.pem $ovpndir 2>/dev/null && echo -e "ok" || get_error '21'
+	chmod 644 $ovpndir/crl.pem
+}
+
 # # #
 
 get_help(){
@@ -152,6 +171,10 @@ case $1 in
 		ovpn_restart "$@" || get_error $?;;
 	create)
 		ersa_create "$@" || get_error $?;;
+	revoke)
+		ersa_revoke "$@" || get_error $?;;
+	crlrenew)
+		ersa_crlrenew || get_error $?;;
 	help|?)
 		get_help;;
 	*)
