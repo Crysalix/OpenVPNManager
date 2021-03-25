@@ -22,7 +22,8 @@ rootdir=$(dirname $(readlink -f $0))
 # ==================================
 
 #working dir
-dir=/etc/openvpn
+ovpndir=/etc/openvpn
+ersadir=/etc/openvpn/easy-rsa
 
 # ==================================
 # Functions
@@ -73,13 +74,13 @@ ovpn_start(){
 		# enable IP forwarding
 		echo 1 > /proc/sys/net/ipv4/ip_forward
 
-		/usr/sbin/openvpn --cd $dir --daemon --writepid $dir/.ovpn.pid --config server.conf || get_error $?
+		/usr/sbin/openvpn --cd $ovpndir --daemon --writepid $ovpndir/.ovpn.pid --config server.conf || get_error $?
 		echo -e "$ok Done."
 	fi
 }
 
 ovpn_stop(){
-	local pid=$(cat $dir/.ovpn.pid)
+	local pid=$(cat $ovpndir/.ovpn.pid)
 	kill -15 $pid
 	count=0
 	until [ $count -gt 30 ];do
@@ -92,7 +93,7 @@ ovpn_stop(){
 		fi
 	done
 	if [ $count = 999 ];then
-		rm $dir/.ovpn.pid
+		rm $ovpndir/.ovpn.pid
 		echo -e "$ok Done."
 	else
 		echo -e "$warn OpenVPN daemon is still running !"
@@ -112,7 +113,7 @@ ovpn_restart(){
 
 #init pki ca and co
 ersa_init(){
-	cd $dir/easy-rsa
+	cd $ersadir
 
 	./easyrsa init-pki
 
@@ -123,7 +124,7 @@ ersa_init(){
 }
 
 ersa_create(){
-	cd $dir/easy-rsa
+	cd $ersadir
 	case $2 in
 		client)
 			./easyrsa build-client-full $3 $4 || get_error $?;;
