@@ -157,8 +157,14 @@ ersa_crlrenew(){
 # # #
 
 get_help(){
-echo -e '    Commands :'
-echo
+	echo -e '    Commands :'
+	echo -e '\tstart \t\t- Start OpenVPN Daemon'
+	echo -e '\tstop \t\t- Stop OpenVPN Daemon'
+	echo -e '\trestart \t- Restart OpenVPN Daemon'
+	echo -e '\tcreate \t\t- Create new clients/server certificates'
+	echo -e '\trevoke \t\t- Revoke a certificate'
+	echo -e '\tcrlrenew \t- Create or renew the "Certificate Revocation List" file'
+	echo
 }
 
 # GO!
@@ -178,7 +184,7 @@ case $1 in
 	help|?)
 		get_help;;
 	*)
-		echo -e "Usage: $0 {start|stop|restart}"
+		echo -e "Usage: $0 {start|stop|restart|create|revoke|crlrenew|help}"
 	exit 18;;
 esac
 exit 0
